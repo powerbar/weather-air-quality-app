@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    Hsiu-hsien Chen,
+    11/5/2025, 
+    Wk11X GeoLocation and Weather
+    Javascript 1
+    -->
+    <meta charset='utf-8' />
+    <meta name="viewport" content="width=device-width" /> 
+    <title>Lab101X: Weather</title>
+    <style>
+    /* styles go here */
+    body {font-family: sans-serif; text-align: center;}
+    h1 {text-align: center; }
+    p span::first-of-type {display: inline-block; width: 40%; text-align: right; margin-right: 8px;}
+    p span:last-of-type {display:inline-block; width:40%; text-align:left;}
+
+    </style>
+</head>
+
+<body id="body">
+    <h1>Lab11X: Weather</h1>
+    <!-- page content will go here -->
+    
+    <p>
+        <span>Latitude</span>
+        <span id="latitude">...</span>
+    </p>
+
+     <p>
+        <span>Longitude</span>
+        <span id="longitude">...</span>
+    </p>
+    
+    <p>
+        <span>Temperature</span>
+        <span id="temperature">...</span>
+    </p>
+    
+    <p>
+        <span>Sunrise Today</span>
+        <span id="sunrise">...</span>
+    </p>
+
+    <p>
+        <span>Sunset Today</span>
+        <span id="sunset">...</span>
+    </p>
+
+    <p>
+        <span>Status</span>
+        <span id="status">...</span>
+    </p>
+
+    <script>
+    // scripts will go here
+
+    function get(id) {return document.getElementById(id);};
+    var xhr = false;
+    getLocation();
+
+    function getLocation() {
+            if (navigator.geolocation) {
+                get('status').textContent = "Getting location...";  // added statement
+                navigator.geolocation.getCurrentPosition(showPosition, handleLocationError);  // added handleLocationError
+            } else {
+                get('status').textContent = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        // function added
+        function handleLocationError(error) {
+            get('status').textContent = "Error getting location: " + error.message;
+            console.error("Geolocation error:", error);
+        }
+
+        function showPosition(position) {
+            var lat = position.coords.latitude;
+            var long = position.coords.longitude;
+            get('latitude').textContent = lat.toFixed(5);
+            get('longitude').textContent = long.toFixed(5);
+            get('status').textContent = "Location found! Getting weather...";  //added statement
+
+            // var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + long + "&daily=sunrise,sunset&ho";
+            
+            // var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + long + "&daily=sunrise,sunset&hourly=uv_index&current=temperature_2m,is_day&temperature_unit=fahrenheit" + "&timezone=America%2FLosAngeles&current_weather=true";
+
+            // Fixed URL - removed hourly parameter and fixed timezone encoding
+            var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + long + "&daily=sunrise,sunset&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto";
+
+            xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = processWeather;
+            xhr.open ("GET", url);
+            xhr.send();
+        }
+
+        /* function processWeather() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log (xhr.responseText);
+                var weather = JSON.parse(xhr.responseText);
+                console.log(weather);
+                var temperature = weather.current_weather.temperature_2m;
+                var sunrise = weather.daily.sunrise[0].substr(11); // remove date and T
+                var sunset = weather.daily.sunset[0].substr(11);  // remove date and T
+
+                get('temperature').innerHTML = temperature + "&deg;F";
+                get('sunrise').textContent = sunrise;
+                get('sunset').textContent = sunset;
+                get('status').textContent = "Weather data loaded!";
+            }
+        } */
+
+    function processWeather() { // added function
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    console.log("Response:", xhr.responseText);
+                    var weather = JSON.parse(xhr.responseText);
+                    console.log("Parsed weather:", weather);
+
+                    // CORRECT: use current.temperature_2m
+                    var temperature = weather.current.temperature_2m;
+                    var sunrise = weather.daily.sunrise[0].substr(11);
+                    var sunset = weather.daily.sunset[0].substr(11);
+
+                    get('temperature').innerHTML = temperature + "&deg;F";
+                    get('sunrise').textContent = sunrise;
+                    get('sunset').textContent = sunset;
+                    get('status').textContent = "Weather data loaded!";
+                } else {
+                    get('status').textContent = "Error loading weather: " + xhr.status;
+                    console.error("Weather API error:", xhr.status, xhr.responseText);
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
