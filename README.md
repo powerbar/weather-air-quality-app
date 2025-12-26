@@ -120,4 +120,4 @@ This project is open source and available for educational purposes.
 4. Click **"Save"**
 5. Wait a few minutes, then your site will be live at:
 ```
-   https://github.com/powerbar/weather-air-quality-app
+   https://powerbar.github.io/weather-air-quality-app/
