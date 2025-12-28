@@ -14,7 +14,7 @@ A web application that displays current weather conditions and air quality data 
 - HTML5
 - CSS3
 - JavaScript (Vanilla JS with XMLHttpRequest)
-- Google Geolocation API
+- Google Geolocation API (as fallback, when API enabled)
 - Open-Meteo Weather API
 - Open-Meteo Air Quality API
 
